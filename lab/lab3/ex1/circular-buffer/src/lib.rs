@@ -1,6 +1,8 @@
+use std::mem;
+
 
 #[cfg(feature="version1")]
-pub struct CircularBuffer<T: Clone + Default> {
+pub struct CircularBuffer<T:Default> {
     buffer: Vec<T>,
     capacity: usize,
     read_idx: usize,
@@ -23,7 +25,7 @@ pub enum Error {
 }
 
 #[cfg(feature="version1")]
-impl<T: Clone + Default> CircularBuffer<T> {
+impl<T: Default> CircularBuffer<T> {
     
     pub fn new(capacity: usize) -> Self {
         Self {
@@ -51,7 +53,7 @@ impl<T: Clone + Default> CircularBuffer<T> {
         match self.size == 0 {
             true => Err(Error::EmptyBuffer),
             false => {
-                let ret = self.buffer[self.read_idx].clone(); //clone the element
+                let ret = mem::take(&mut self.buffer[self.read_idx]); //take the element
                 self.read_idx = (self.read_idx+1) % self.capacity; //incremet read index 
                 self.size-=1; //decrement the number of element in the buffer
                 return Ok(ret)
